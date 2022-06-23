@@ -27,10 +27,8 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class TTTreeCompareDlg : CommonDialog, ITreeCompareDlg
+    public sealed partial class TTTreeCompareDlg : CommonDialog<ITreeCompareDlg, TreeCompareController>, ITreeCompareDlg
     {
-        private readonly TreeCompareController fController;
-
         #region View Interface
 
         ITextBox ITreeCompareDlg.ExternalBase
@@ -60,16 +58,6 @@ namespace GKUI.Forms
             fController.SelectExternalFile();
         }
 
-        public TreeMatchType GetTreeMatchType()
-        {
-            TreeMatchType type =
-                ((radMatchInternal.Checked) ?
-                 TreeMatchType.tmtInternal :
-                 ((radMathExternal.Checked) ? TreeMatchType.tmtExternal : TreeMatchType.tmtAnalysis));
-
-            return type;
-        }
-
         private void btnMatch_Click(object sender, EventArgs e)
         {
             fController.Match();
@@ -77,11 +65,7 @@ namespace GKUI.Forms
 
         private void rbtnMatch_CheckedChanged(object sender, EventArgs e)
         {
-            TreeMatchType type = GetTreeMatchType();
-
-            lblFile.Enabled = (type == TreeMatchType.tmtExternal);
-            txtCompareFile.Enabled = (type == TreeMatchType.tmtExternal);
-            btnFileChoose.Enabled = (type == TreeMatchType.tmtExternal);
+            fController.ChangeTreeMatchType();
         }
     }
 }

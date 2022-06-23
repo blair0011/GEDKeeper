@@ -19,7 +19,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using BSLib.Design.MVP.Controls;
 using Eto.Forms;
 using Eto.Serialization.Xaml;
@@ -33,12 +32,12 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class TaskEditDlg : EditorDialog, ITaskEditDlg
+    public sealed partial class TaskEditDlg : CommonDialog<ITaskEditDlg, TaskEditDlgController>, ITaskEditDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private GroupBox GroupBox1;
-        private TabControl tabsData;
         private TabPage pageNotes;
         private Button btnAccept;
         private Button btnCancel;
@@ -52,17 +51,15 @@ namespace GKUI.Forms
         private ComboBox cmbGoalType;
         private TextBox txtGoal;
         private Button btnGoalSelect;
+        private GKSheetList fNotesList;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
-        private readonly TaskEditDlgController fController;
-
-        private readonly GKSheetList fNotesList;
-
-        public GDMTaskRecord Task
+        public GDMTaskRecord TaskRecord
         {
-            get { return fController.Task; }
-            set { fController.Task = value; }
+            get { return fController.TaskRecord; }
+            set { fController.TaskRecord = value; }
         }
 
         #region View Interface
@@ -111,32 +108,8 @@ namespace GKUI.Forms
             txtStartDate.Provider = new FixedMaskedTextProvider("00/00/0000");
             txtStopDate.Provider = new FixedMaskedTextProvider("00/00/0000");
 
-            btnGoalSelect.Image = UIHelper.LoadResourceImage("Resources.btn_rec_new.gif");
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
-            fNotesList = new GKSheetList(pageNotes);
-
             fController = new TaskEditDlgController(this);
             fController.Init(baseWin);
-
-            fNotesList.ListModel = new NoteLinksListModel(baseWin, fController.LocalUndoman);
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            e.Cancel = fController.CheckChangesPersistence();
         }
 
         private void btnGoalSelect_Click(object sender, EventArgs e)

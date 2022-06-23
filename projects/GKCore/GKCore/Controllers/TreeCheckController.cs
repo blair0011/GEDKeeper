@@ -19,8 +19,10 @@
  */
 
 using System.Collections.Generic;
+using System.Text;
 using BSLib.Design.MVP.Controls;
 using GDModel;
+using GKCore.Interfaces;
 using GKCore.MVP;
 using GKCore.MVP.Views;
 using GKCore.Tools;
@@ -45,7 +47,9 @@ namespace GKCore.Controllers
 
         public void CheckBase()
         {
-            TreeTools.CheckBase(fBase, fChecksList);
+            AppHost.Instance.ExecuteWork((controller) => {
+                TreeTools.CheckBase(fBase, fChecksList, controller);
+            });
 
             fView.ChecksList.BeginUpdate();
             try {
@@ -119,6 +123,25 @@ namespace GKCore.Controllers
             if (rec == null) return;
 
             BaseController.ViewRecordInfo(fBase, rec);
+        }
+
+        public void CopySelectedXRefs(IList<object> list)
+        {
+            var text = new StringBuilder();
+            foreach (var item in list) {
+                var checkObj = (TreeTools.CheckObj)item;
+                text.Append(checkObj.Rec.XRef);
+                text.Append("\r\n");
+            }
+            AppHost.Instance.SetClipboardText(text.ToString());
+        }
+
+        public void OpeningContextMenu()
+        {
+            var rec = GetSelectedRecord();
+            GetControl<IMenuItem>("miDetails").Enabled = (rec != null);
+            GetControl<IMenuItem>("miGoToRecord").Enabled = (rec != null);
+            GetControl<IMenuItem>("miCopyXRef").Enabled = (rec != null);
         }
 
         public override void SetLocale()

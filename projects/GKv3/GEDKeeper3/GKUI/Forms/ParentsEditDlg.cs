@@ -19,7 +19,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using BSLib.Design.MVP.Controls;
 using Eto.Forms;
 using Eto.Serialization.Xaml;
@@ -27,13 +26,13 @@ using GDModel;
 using GKCore.Controllers;
 using GKCore.Interfaces;
 using GKCore.MVP.Views;
-using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public partial class ParentsEditDlg : EditorDialog, IParentsEditDlg
+    public partial class ParentsEditDlg : CommonDialog<IParentsEditDlg, ParentsEditDlgController>, IParentsEditDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private Button btnAccept;
         private Button btnCancel;
@@ -46,37 +45,25 @@ namespace GKUI.Forms
         private Label lblParents;
         private TextBox txtFather;
         private TextBox txtMother;
-        //private Button btnParentsAdd;
         private Button btnParentsEdit;
-        //private Button btnParentsDelete;
         private Button btnFatherAdd;
         private Button btnFatherDelete;
-        //private Button btnFatherSel;
         private Button btnMotherAdd;
         private Button btnMotherDelete;
-        //private Button btnMotherSel;
 
-        /*
-                <Button x:Name="btnParentsAdd" Style="iconBtn" Click="btnParentsAdd_Click" />
-                <Button x:Name="btnParentsDelete" Style="iconBtn" Click="btnParentsDelete_Click" />
-                <Button x:Name="btnFatherSel" Style="iconBtn" Click="btnFatherSel_Click" />
-                <Button x:Name="btnMotherSel" Style="iconBtn" Click="btnMotherSel_Click" />
-         */
-
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
-        private readonly ParentsEditDlgController fController;
-
-        public GDMChildToFamilyLink Link
+        public GDMChildToFamilyLink ChildLink
         {
-            get { return fController.Link; }
-            set { fController.Link = value; }
+            get { return fController.ChildLink; }
+            set { fController.ChildLink = value; }
         }
 
-        public GDMIndividualRecord Person
+        public GDMIndividualRecord IndividualRecord
         {
-            get { return fController.Person; }
-            set { fController.Person = value; }
+            get { return fController.IndividualRecord; }
+            set { fController.IndividualRecord = value; }
         }
 
         #region View Interface
@@ -107,49 +94,8 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-            btnParentsEdit.Image = UIHelper.LoadResourceImage("Resources.btn_rec_edit.gif");
-            btnFatherAdd.Image = UIHelper.LoadResourceImage("Resources.btn_rec_new.gif");
-            btnFatherDelete.Image = UIHelper.LoadResourceImage("Resources.btn_rec_delete.gif");
-            btnMotherAdd.Image = UIHelper.LoadResourceImage("Resources.btn_rec_new.gif");
-            btnMotherDelete.Image = UIHelper.LoadResourceImage("Resources.btn_rec_delete.gif");
-
             fController = new ParentsEditDlgController(this);
             fController.Init(baseWin);
-        }
-
-        public void SetParentsAvl(bool avail)
-        {
-            btnParentsEdit.Enabled = avail;
-        }
-
-        public void SetFatherAvl(bool avail)
-        {
-            btnFatherAdd.Enabled = !avail;
-            btnFatherDelete.Enabled = avail;
-        }
-
-        public void SetMotherAvl(bool avail)
-        {
-            btnMotherAdd.Enabled = !avail;
-            btnMotherDelete.Enabled = avail;
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            e.Cancel = fController.CheckChangesPersistence();
         }
 
         private void btnFatherAdd_Click(object sender, EventArgs e)

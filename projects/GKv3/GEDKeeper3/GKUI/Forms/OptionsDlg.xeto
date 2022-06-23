@@ -98,13 +98,13 @@
 
                   <StackLayout Orientation="Horizontal" Spacing="4">
                     <CheckBox x:Name="chkAutosave" />
-                    <NumericUpDown x:Name="numASMin" MaxValue="120" MinValue="1" Width="60" Value="1" />
+                    <NumericStepper x:Name="numASMin" MaxValue="120" MinValue="1" Width="60" Value="1" />
                     <Label x:Name="lblMinutes" />
                   </StackLayout>
 
                   <StackLayout Orientation="Horizontal" Spacing="4">
                     <Label x:Name="lblBackupRevisionsMaxCount" />
-                    <NumericUpDown x:Name="numBackupRevisionsMaxCount" MaxValue="1000" MinValue="0" Width="80" Value="0" />
+                    <NumericStepper x:Name="numBackupRevisionsMaxCount" MaxValue="1000" MinValue="0" Width="80" Value="0" />
                   </StackLayout>
 
                 </StackLayout>
@@ -247,22 +247,22 @@
 
                         <TableRow>
                           <Label x:Name="lblMargins" />
-                          <NumericUpDown x:Name="numMargins" MaxValue="120" MinValue="1" Width="60" Value="1" />
+                          <NumericStepper x:Name="numMargins" MaxValue="120" MinValue="1" Width="60" Value="1" />
                         </TableRow>
 
                         <TableRow>
                           <Label x:Name="lblBranchDist" />
-                          <NumericUpDown x:Name="numBranchDist" MaxValue="120" MinValue="1" Width="60" Value="1" />
+                          <NumericStepper x:Name="numBranchDist" MaxValue="120" MinValue="1" Width="60" Value="1" />
                         </TableRow>
 
                         <TableRow>
                           <Label x:Name="lblGenDist" />
-                          <NumericUpDown x:Name="numGenDist" MaxValue="120" MinValue="1" Width="60" Value="1" />
+                          <NumericStepper x:Name="numGenDist" MaxValue="120" MinValue="1" Width="60" Value="1" />
                         </TableRow>
 
                         <TableRow>
                           <Label x:Name="lblSpouseDist" />
-                          <NumericUpDown x:Name="numSpouseDist" MaxValue="120" MinValue="1" Width="60" Value="1" />
+                          <NumericStepper x:Name="numSpouseDist" MaxValue="120" MinValue="1" Width="60" Value="1" />
                         </TableRow>
 
                         <TableRow ScaleHeight="True" />
@@ -278,17 +278,17 @@
 
                       <TableRow>
                         <Label x:Name="lblDefaultDepth" />
-                        <NumericUpDown x:Name="numDefaultDepth" MaxValue="9" MinValue="-1" Width="60" Value="-1" />
+                        <NumericStepper x:Name="numDefaultDepth" MaxValue="9" MinValue="-1" Width="60" Value="-1" />
                       </TableRow>
 
                       <TableRow>
                         <Label x:Name="lblDefaultDepthAncestors" />
-                        <NumericUpDown x:Name="numDefaultDepthAncestors" MaxValue="9" MinValue="-1" Width="60" Value="-1" />
+                        <NumericStepper x:Name="numDefaultDepthAncestors" MaxValue="9" MinValue="-1" Width="60" Value="-1" />
                       </TableRow>
 
                       <TableRow>
                         <Label x:Name="lblDefaultDepthDescendants" />
-                        <NumericUpDown x:Name="numDefaultDepthDescendants" MaxValue="9" MinValue="-1" Width="60" Value="-1" />
+                        <NumericStepper x:Name="numDefaultDepthDescendants" MaxValue="9" MinValue="-1" Width="60" Value="-1" />
                       </TableRow>
 
                       <TableRow ScaleHeight="True" />
@@ -389,8 +389,8 @@
 
                   <TableCell>
                     <StackLayout Spacing="4">
-                      <Button x:Name="btnColumnUp" Size="26, 26" Click="btnColumnUp_Click" />
-                      <Button x:Name="btnColumnDown" Size="26, 26" Click="btnColumnDown_Click" />
+                      <Button x:Name="btnColumnUp" Size="26, 26" Image="{Resource Resources.btn_up.gif, GKCore}" Click="btnColumnUp_Click" />
+                      <Button x:Name="btnColumnDown" Size="26, 26" Image="{Resource Resources.btn_down.gif, GKCore}" Click="btnColumnDown_Click" />
                       <StackLayoutItem />
                     </StackLayout>
                   </TableCell>
@@ -444,10 +444,10 @@
       <StackLayout Spacing="8" Orientation="Horizontal">
         <StackLayoutItem Expand="True" />
         <StackLayoutItem HorizontalAlignment="Right">
-          <Button x:Name="btnAccept" Style="dlgBtn" Click="btnAccept_Click" />
+          <Button x:Name="btnAccept" Style="dlgBtn" Image="{Resource Resources.btn_accept.gif, GKCore}" Click="AcceptClickHandler" />
         </StackLayoutItem>
         <StackLayoutItem HorizontalAlignment="Right">
-          <Button x:Name="btnCancel" Style="dlgBtn" Click="CancelClickHandler" />
+          <Button x:Name="btnCancel" Style="dlgBtn" Image="{Resource Resources.btn_cancel.gif, GKCore}" Click="CancelClickHandler" />
         </StackLayoutItem>
       </StackLayout>
     </TableRow>

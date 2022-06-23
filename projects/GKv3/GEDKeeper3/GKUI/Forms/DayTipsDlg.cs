@@ -25,13 +25,13 @@ using Eto.Forms;
 using Eto.Serialization.Xaml;
 using GKCore.Controllers;
 using GKCore.MVP.Views;
-using GKUI.Components;
 
 namespace GKUI.Forms
 {
     public partial class DayTipsDlg : CommonDialog, IDayTipsDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private CheckBox chkShow;
         private Button btnNextTip;
@@ -40,6 +40,7 @@ namespace GKUI.Forms
         private Eto.Forms.ImageView Image1;
         private TextBox txtTip;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
         private readonly DayTipsDlgController fController;
@@ -73,9 +74,6 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            Image1.Image = UIHelper.LoadResourceImage("Resources.image_tips_light.png");
-            btnClose.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
             fController = new DayTipsDlgController(this);
         }
 
@@ -86,11 +84,7 @@ namespace GKUI.Forms
 
         public void Init(string caption, bool showTipsChecked, StringList tips)
         {
-            chkShow.Checked = showTipsChecked;
-            Title = caption;
-            lblTitle.Text = caption;
-            fController.SetTips(tips);
-            fController.GetNextTip();
+            fController.InitTips(caption, showTipsChecked, tips);
         }
     }
 }

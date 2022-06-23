@@ -33,13 +33,13 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class AddressEditDlg : EditorDialog, IAddressEditDlg
+    public sealed partial class AddressEditDlg : CommonDialog<IAddressEditDlg, AddressEditDlgController>, IAddressEditDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private Button btnAccept;
         private Button btnCancel;
-        private TabControl tabsData;
         private TabPage pagePhones;
         private TabPage pageEmails;
         private TabPage pageCommon;
@@ -54,14 +54,12 @@ namespace GKUI.Forms
         private TextBox txtCity;
         private TextBox txtPostalCode;
         private TextBox txtAddress;
+        private GKSheetList fPhonesList;
+        private GKSheetList fMailsList;
+        private GKSheetList fWebsList;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
-
-        private readonly AddressEditDlgController fController;
-
-        private readonly GKSheetList fPhonesList;
-        private readonly GKSheetList fMailsList;
-        private readonly GKSheetList fWebsList;
 
         public GDMAddress Address
         {
@@ -118,18 +116,6 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
-            fPhonesList = new GKSheetList(pagePhones);
-            fPhonesList.OnModify += ListModify;
-
-            fMailsList = new GKSheetList(pageEmails);
-            fMailsList.OnModify += ListModify;
-
-            fWebsList = new GKSheetList(pageWebPages);
-            fWebsList.OnModify += ListModify;
-
             fController = new AddressEditDlgController(this);
             fController.Init(baseWin);
         }
@@ -146,22 +132,6 @@ namespace GKUI.Forms
             } else if (sender == fWebsList) {
                 fController.DoWebsAction(eArgs.Action, itemTag);
             }
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            e.Cancel = fController.CheckChangesPersistence();
         }
     }
 }

@@ -18,8 +18,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.ComponentModel;
 using BSLib.Design.MVP.Controls;
 using Eto.Forms;
 using Eto.Serialization.Xaml;
@@ -33,31 +31,29 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class GroupEditDlg : EditorDialog, IGroupEditDlg
+    public sealed partial class GroupEditDlg : CommonDialog<IGroupEditDlg, GroupEditDlgController>, IGroupEditDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private TextBox edName;
         private Label lblName;
-        private TabControl tabsData;
         private TabPage pageNotes;
         private TabPage pageMultimedia;
         private TabPage pageMembers;
         private Button btnAccept;
         private Button btnCancel;
+        private GKSheetList fMembersList;
+        private GKSheetList fNotesList;
+        private GKSheetList fMediaList;
 
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
-        private readonly GroupEditDlgController fController;
-
-        private readonly GKSheetList fMembersList;
-        private readonly GKSheetList fNotesList;
-        private readonly GKSheetList fMediaList;
-
-        public GDMGroupRecord Group
+        public GDMGroupRecord GroupRecord
         {
-            get { return fController.Group; }
-            set { fController.Group = value; }
+            get { return fController.GroupRecord; }
+            set { fController.GroupRecord = value; }
         }
 
         #region View Interface
@@ -88,21 +84,8 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
-            fMembersList = new GKSheetList(pageMembers);
-            fMembersList.OnModify += ModifyMembersSheet;
-
-            fNotesList = new GKSheetList(pageNotes);
-            fMediaList = new GKSheetList(pageMultimedia);
-
             fController = new GroupEditDlgController(this);
             fController.Init(baseWin);
-
-            fMembersList.ListModel = new GroupMembersSublistModel(baseWin, fController.LocalUndoman);
-            fNotesList.ListModel = new NoteLinksListModel(baseWin, fController.LocalUndoman);
-            fMediaList.ListModel = new MediaLinksListModel(baseWin, fController.LocalUndoman);
         }
 
         private void ModifyMembersSheet(object sender, ModifyEventArgs eArgs)
@@ -110,22 +93,6 @@ namespace GKUI.Forms
             if (eArgs.Action == RecordAction.raJump) {
                 fController.JumpToRecord(eArgs.ItemData as GDMIndividualRecord);
             }
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            e.Cancel = fController.CheckChangesPersistence();
         }
     }
 }

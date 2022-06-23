@@ -19,7 +19,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using BSLib.Design.MVP.Controls;
 using Eto.Forms;
 using Eto.Serialization.Xaml;
@@ -33,11 +32,11 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class MediaEditDlg : EditorDialog, IMediaEditDlg
+    public sealed partial class MediaEditDlg : CommonDialog<IMediaEditDlg, MediaEditDlgController>, IMediaEditDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
-        private TabControl tabsData;
         private TabPage pageNotes;
         private TabPage pageSources;
         private Button btnAccept;
@@ -53,18 +52,16 @@ namespace GKUI.Forms
         private Label lblFile;
         private TextBox txtFile;
         private Button btnFileSelect;
+        private GKSheetList fNotesList;
+        private GKSheetList fSourcesList;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
-        private readonly MediaEditDlgController fController;
-
-        private readonly GKSheetList fNotesList;
-        private readonly GKSheetList fSourcesList;
-
-        public GDMMultimediaRecord MediaRec
+        public GDMMultimediaRecord MultimediaRecord
         {
-            get { return fController.MediaRec; }
-            set { fController.MediaRec = value; }
+            get { return fController.MultimediaRecord; }
+            set { fController.MultimediaRecord = value; }
         }
 
         #region View Interface
@@ -110,33 +107,8 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
-            fNotesList = new GKSheetList(pageNotes);
-            fSourcesList = new GKSheetList(pageSources);
-
             fController = new MediaEditDlgController(this);
             fController.Init(baseWin);
-
-            fNotesList.ListModel = new NoteLinksListModel(baseWin, fController.LocalUndoman);
-            fSourcesList.ListModel = new SourceCitationsListModel(baseWin, fController.LocalUndoman);
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            e.Cancel = fController.CheckChangesPersistence();
         }
 
         private void btnFileSelect_Click(object sender, EventArgs e)

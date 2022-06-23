@@ -24,6 +24,7 @@ using Eto.Forms;
 using Eto.Serialization.Xaml;
 using GKCore;
 using GKCore.Interfaces;
+using GKUI.Platform;
 using LibVLCSharp.Shared;
 using VLCMediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 
@@ -32,8 +33,9 @@ namespace GKUI.Components
     public partial class MediaPlayer : Panel, ILocalizable
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
-        private Panel pnlVideo;
+        private NativeHostControl pnlVideo;
         private Button btnMute;
         private Slider trkVolume;
         private Button btnPause;
@@ -42,6 +44,7 @@ namespace GKUI.Components
         private Slider trkPosition;
         private Label lblDuration;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
         private LibVLC fLibVLC;

@@ -20,7 +20,7 @@
               <Label x:Name="lblStatus" />
               <ComboBox x:Name="cmbStatus" ReadOnly="True" />
               <Label x:Name="lblPercent" />
-              <NumericUpDown x:Name="nudPercent" Increment="5" />
+              <NumericStepper x:Name="nudPercent" Increment="5" />
             </StackLayout>
           </TableRow>
           <TableRow>
@@ -36,11 +36,19 @@
     </TableRow>
 
     <TableRow ScaleHeight="True">
-      <TabControl x:Name="tabsData" Size="600, 260">
-        <TabPage x:Name="pageTasks" />
-        <TabPage x:Name="pageCommunications" />
-        <TabPage x:Name="pageGroups" />
-        <TabPage x:Name="pageNotes" />
+      <TabControl Size="600, 260">
+        <TabPage x:Name="pageTasks">
+          <comcom:GKSheetList x:Name="fTasksList" OnModify="ListJumpHandler" />
+        </TabPage>
+        <TabPage x:Name="pageCommunications">
+          <comcom:GKSheetList x:Name="fCommunicationsList" OnModify="ListJumpHandler" />
+        </TabPage>
+        <TabPage x:Name="pageGroups">
+          <comcom:GKSheetList x:Name="fGroupsList" OnModify="ListJumpHandler" />
+        </TabPage>
+        <TabPage x:Name="pageNotes">
+          <comcom:GKSheetList x:Name="fNotesList" />
+        </TabPage>
       </TabControl>
     </TableRow>
 
@@ -48,10 +56,10 @@
       <StackLayout Spacing="8" Orientation="Horizontal">
         <StackLayoutItem Expand="True" />
         <StackLayoutItem HorizontalAlignment="Right">
-          <Button x:Name="btnAccept" Style="dlgBtn" Click="btnAccept_Click" />
+          <Button x:Name="btnAccept" Style="dlgBtn" Image="{Resource Resources.btn_accept.gif, GKCore}" Click="AcceptClickHandler" />
         </StackLayoutItem>
         <StackLayoutItem HorizontalAlignment="Right">
-          <Button x:Name="btnCancel" Style="dlgBtn" Click="btnCancel_Click" />
+          <Button x:Name="btnCancel" Style="dlgBtn" Image="{Resource Resources.btn_cancel.gif, GKCore}" Click="CancelClickHandler" />
         </StackLayoutItem>
       </StackLayout>
     </TableRow>

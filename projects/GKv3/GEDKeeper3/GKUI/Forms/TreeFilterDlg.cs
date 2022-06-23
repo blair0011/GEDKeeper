@@ -19,11 +19,9 @@
  */
 
 using System;
-using BSLib;
 using BSLib.Design.MVP.Controls;
 using Eto.Forms;
 using Eto.Serialization.Xaml;
-using GKCore;
 using GKCore.Charts;
 using GKCore.Controllers;
 using GKCore.Interfaces;
@@ -33,9 +31,10 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class TreeFilterDlg : EditorDialog, ITreeFilterDlg
+    public sealed partial class TreeFilterDlg : CommonDialog<ITreeFilterDlg, TreeFilterDlgController>, ITreeFilterDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private Button btnAccept;
         private Button btnCancel;
@@ -46,15 +45,11 @@ namespace GKUI.Forms
         private RadioButton rbCutYears;
         private RadioButton rbCutPersons;
         private Label lblYear;
-        private NumericUpDown edYear;
-        private Panel Panel1;
-        private Panel Panel2;
+        private NumericStepper edYear;
+        private GKSheetList fPersonsList;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
-
-        private readonly TreeFilterDlgController fController;
-
-        private readonly GKSheetList fPersonsList;
 
         public ChartFilter Filter
         {
@@ -79,31 +74,15 @@ namespace GKUI.Forms
             get { return GetControlHandler<IComboBox>(cmbSource); }
         }
 
-        void ITreeFilterDlg.SetCutModeRadio(int cutMode)
-        {
-            switch (cutMode) {
-                case 0:
-                    rbCutNone.Checked = true;
-                    break;
-                case 1:
-                    rbCutYears.Checked = true;
-                    break;
-                case 2:
-                    rbCutPersons.Checked = true;
-                    break;
-            }
-        }
-
-        int ITreeFilterDlg.GetCutModeRadio()
-        {
-            int cutMode = 0;
-            if (rbCutNone.Checked) cutMode = 0;
-            if (rbCutYears.Checked) cutMode = 1;
-            if (rbCutPersons.Checked) cutMode = 2;
-            return cutMode;
-        }
-
         #endregion
+
+        public TreeFilterDlg(IBaseWindow baseWin)
+        {
+            XamlReader.Load(this);
+
+            fController = new TreeFilterDlgController(this);
+            fController.Init(baseWin);
+        }
 
         private void ListModify(object sender, ModifyEventArgs eArgs)
         {
@@ -114,39 +93,12 @@ namespace GKUI.Forms
 
         private void rbCutX_CheckedChanged(object sender, EventArgs e)
         {
-            fController.Filter.BranchCut = (ChartFilter.BranchCutType)((ITreeFilterDlg)this).GetCutModeRadio();
-            fController.UpdateControls();
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            fController.Filter.Reset();
-            Close(DialogResult.Cancel);
+            fController.ChangeCutMode();
         }
 
         private void TreeFilterDlg_Load(object sender, EventArgs e)
         {
             fController.UpdateView();
-        }
-
-        public TreeFilterDlg(IBaseWindow baseWin)
-        {
-            XamlReader.Load(this);
-
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
-            fPersonsList = new GKSheetList(Panel2);
-            fPersonsList.Buttons = EnumSet<SheetButton>.Create(SheetButton.lbAdd, SheetButton.lbDelete);
-            fPersonsList.OnModify += ListModify;
-
-            fController = new TreeFilterDlgController(this);
-            fController.Init(baseWin);
         }
     }
 }

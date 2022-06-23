@@ -44,6 +44,7 @@ namespace GKUI.Forms
     public sealed partial class BaseWinSDI : CommonWindow, IBaseWindowView
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private TableLayout StatusBar;
         private Label panStatusText;
@@ -58,7 +59,7 @@ namespace GKUI.Forms
         private ButtonToolItem tbFilter;
         private ButtonToolItem tbTreeAncestors;
         private ButtonToolItem tbTreeDescendants;
-        private ButtonToolItem tbPedigree;
+        private DropDownToolItem tbPedigree;
         private ButtonToolItem tbStats;
         private ButtonToolItem tbPrev;
         private ButtonToolItem tbNext;
@@ -110,7 +111,7 @@ namespace GKUI.Forms
         private ButtonMenuItem miReports;
         private ButtonMenuItem miPlugins;
         private ButtonMenuItem miSlideshow;
-        private ButtonToolItem tbLoadMRU;
+        private DropDownToolItem tbLoadMRU;
         private ButtonMenuItem miPedigreeAscend;
         private ButtonMenuItem miDescendantsCircle;
         private ButtonMenuItem miRelationshipCalculator;
@@ -130,6 +131,7 @@ namespace GKUI.Forms
         private ButtonMenuItem miPatSearch;
         private ButtonMenuItem miPlacesManager;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
         #region Private fields
@@ -145,6 +147,11 @@ namespace GKUI.Forms
         public IBaseContext Context
         {
             get { return fContext; }
+        }
+
+        public NavigationStack<GDMRecord> Navman
+        {
+            get { return fController.Navman; }
         }
 
         #endregion
@@ -175,23 +182,6 @@ namespace GKUI.Forms
             XamlReader.Load(this);
             InitializeComponent();
 
-            Icon = new Icon(GKUtils.LoadResourceStream("Resources.icon_gedkeeper.ico"));
-            tbFileNew.Image = UIHelper.LoadResourceImage("Resources.btn_create_new.gif");
-            tbFileLoad.Image = UIHelper.LoadResourceImage("Resources.btn_load.gif");
-            tbFileSave.Image = UIHelper.LoadResourceImage("Resources.btn_save.gif");
-            tbRecordAdd.Image = UIHelper.LoadResourceImage("Resources.btn_rec_new.gif");
-            tbRecordEdit.Image = UIHelper.LoadResourceImage("Resources.btn_rec_edit.gif");
-            tbRecordDelete.Image = UIHelper.LoadResourceImage("Resources.btn_rec_delete.gif");
-            tbFilter.Image = UIHelper.LoadResourceImage("Resources.btn_filter.gif");
-            tbTreeAncestors.Image = UIHelper.LoadResourceImage("Resources.btn_tree_ancestry.gif");
-            tbTreeDescendants.Image = UIHelper.LoadResourceImage("Resources.btn_tree_descendants.gif");
-            tbTreeBoth.Image = UIHelper.LoadResourceImage("Resources.btn_tree_both.gif");
-            tbPedigree.Image = UIHelper.LoadResourceImage("Resources.btn_scroll.gif");
-            tbStats.Image = UIHelper.LoadResourceImage("Resources.btn_table.gif");
-            tbPrev.Image = UIHelper.LoadResourceImage("Resources.btn_left.gif");
-            tbNext.Image = UIHelper.LoadResourceImage("Resources.btn_right.gif");
-            tbSendMail.Image = UIHelper.LoadResourceImage("Resources.btn_mail.gif");
-
             AppHost.Instance.LoadWindow(this);
 
             fController = new BaseWinController(this);
@@ -199,7 +189,6 @@ namespace GKUI.Forms
             ((BaseContext)fContext).ModifiedChanged += BaseContext_ModifiedChanged;
 
             tabsRecords.SuspendLayout();
-
             CreatePage(LangMan.LS(LSID.LSID_RPIndividuals), GDMRecordType.rtIndividual);
             CreatePage(LangMan.LS(LSID.LSID_RPFamilies), GDMRecordType.rtFamily);
             CreatePage(LangMan.LS(LSID.LSID_RPNotes), GDMRecordType.rtNote);
@@ -211,10 +200,7 @@ namespace GKUI.Forms
             CreatePage(LangMan.LS(LSID.LSID_RPTasks), GDMRecordType.rtTask);
             CreatePage(LangMan.LS(LSID.LSID_RPCommunications), GDMRecordType.rtCommunication);
             CreatePage(LangMan.LS(LSID.LSID_RPLocations), GDMRecordType.rtLocation);
-
             tabsRecords.ResumeLayout();
-
-            SetLocale();
         }
 
         protected override void Dispose(bool disposing)
@@ -227,13 +213,6 @@ namespace GKUI.Forms
 
         private void InitializeComponent()
         {
-            MenuMRU = new ContextMenu();
-
-            miPedigree_dAboville2 = new ButtonMenuItem(miPedigree_dAbovilleClick);
-            miPedigree_Konovalov2 = new ButtonMenuItem(miPedigree_KonovalovClick);
-            MenuPedigree = new ContextMenu();
-            MenuPedigree.Items.AddRange(new MenuItem[] { miPedigree_dAboville2, miPedigree_Konovalov2 });
-
             miContRecordAdd = new ButtonMenuItem(miRecordAdd_Click);
             miContRecordEdit = new ButtonMenuItem(miRecordEdit_Click);
             miContRecordDelete = new ButtonMenuItem(miRecordDelete_Click);
@@ -249,7 +228,6 @@ namespace GKUI.Forms
             var summary = new HyperView();
             summary.BorderWidth = 4;
             summary.OnLink += mPersonSummaryLink;
-            summary.Font = UIHelper.GetDefaultFont();
 
             var recView = new GKListView();
             recView.AllowMultipleSelection = true;
@@ -406,18 +384,6 @@ namespace GKUI.Forms
             fController.SelectSummaryLink(linkName);
         }
 
-        private void tbLoadMRU_Click(object sender, EventArgs e)
-        {
-            if (MenuMRU.Items.Count > 0) {
-                MenuMRU.Show(this);
-            }
-        }
-
-        private void tbPedigree_Click(object sender, EventArgs e)
-        {
-            MenuPedigree.Show(this);
-        }
-
         #endregion
 
         #region Basic function
@@ -564,8 +530,8 @@ namespace GKUI.Forms
                 MediaViewerWin mediaViewer = new MediaViewerWin(this);
                 try {
                     try {
-                        mediaViewer.Multimedia = mediaRec;
-                        mediaViewer.FileRef = fileRef;
+                        mediaViewer.MultimediaRecord = mediaRec;
+                        mediaViewer.FileReference = fileRef;
                         if (modal) {
                             mediaViewer.Show();
                         } else {

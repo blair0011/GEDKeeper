@@ -25,15 +25,14 @@ using Eto.Serialization.Xaml;
 using GKCore.Controllers;
 using GKCore.Interfaces;
 using GKCore.MVP.Views;
-using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class TTTreeCompareDlg : CommonDialog, ITreeCompareDlg
+    public sealed partial class TTTreeCompareDlg : CommonDialog<ITreeCompareDlg, TreeCompareController>, ITreeCompareDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
-        private TabControl tabsTools;
         private TabPage pageTreeCompare;
         private TextArea ListCompare;
         private Button btnClose;
@@ -46,9 +45,8 @@ namespace GKUI.Forms
         private RadioButton radMatchInternal;
         private GroupBox grpMatchType;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
-
-        private readonly TreeCompareController fController;
 
         #region View Interface
 
@@ -68,8 +66,6 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            btnClose.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
             fController = new TreeCompareController(this);
             fController.Init(baseWin);
         }
@@ -79,16 +75,6 @@ namespace GKUI.Forms
             fController.SelectExternalFile();
         }
 
-        public TreeMatchType GetTreeMatchType()
-        {
-            TreeMatchType type =
-                ((radMatchInternal.Checked) ?
-                 TreeMatchType.tmtInternal :
-                 ((radMathExternal.Checked) ? TreeMatchType.tmtExternal : TreeMatchType.tmtAnalysis));
-
-            return type;
-        }
-
         private void btnMatch_Click(object sender, EventArgs e)
         {
             fController.Match();
@@ -96,11 +82,7 @@ namespace GKUI.Forms
 
         private void rbtnMatch_CheckedChanged(object sender, EventArgs e)
         {
-            TreeMatchType type = GetTreeMatchType();
-
-            lblFile.Enabled = (type == TreeMatchType.tmtExternal);
-            txtCompareFile.Enabled = (type == TreeMatchType.tmtExternal);
-            btnFileChoose.Enabled = (type == TreeMatchType.tmtExternal);
+            fController.ChangeTreeMatchType();
         }
     }
 }

@@ -19,7 +19,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using BSLib.Design.MVP.Controls;
 using Eto.Forms;
 using Eto.Serialization.Xaml;
@@ -34,13 +33,13 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class LocationEditDlg : EditorDialog, ILocationEditDlg
+    public sealed partial class LocationEditDlg : CommonDialog<ILocationEditDlg, LocationEditDlgController>, ILocationEditDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private Button btnAccept;
         private Button btnCancel;
-        private TabControl tabsData;
         private TabPage pageNotes;
         private TabPage pageMultimedia;
         private TabPage pageCommon;
@@ -56,15 +55,12 @@ namespace GKUI.Forms
         private Button btnSelect;
         private Button btnSelectName;
         private Button btnShowOnMap;
-        private Panel panMap;
+        private GKMapBrowser fMapBrowser;
+        private GKSheetList fMediaList;
+        private GKSheetList fNotesList;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
-
-        private readonly LocationEditDlgController fController;
-
-        private readonly GKMapBrowser fMapBrowser;
-        private readonly GKSheetList fMediaList;
-        private readonly GKSheetList fNotesList;
 
         public GDMLocationRecord LocationRecord
         {
@@ -115,21 +111,8 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
-            fMapBrowser = new GKMapBrowser();
-            fMapBrowser.ShowLines = false;
-            panMap.Content = fMapBrowser;
-
-            fNotesList = new GKSheetList(pageNotes);
-            fMediaList = new GKSheetList(pageMultimedia);
-
             fController = new LocationEditDlgController(this);
             fController.Init(baseWin);
-
-            fNotesList.ListModel = new NoteLinksListModel(baseWin, fController.LocalUndoman);
-            fMediaList.ListModel = new MediaLinksListModel(baseWin, fController.LocalUndoman);
         }
 
         private void EditName_KeyDown(object sender, KeyEventArgs e)
@@ -137,22 +120,6 @@ namespace GKUI.Forms
             if (e.Key == Keys.Down && e.Control) {
                 txtName.Text = txtName.Text.ToLower();
             }
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            e.Cancel = fController.CheckChangesPersistence();
         }
 
         private void btnSearch_Click(object sender, EventArgs e)

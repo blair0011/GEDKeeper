@@ -19,12 +19,10 @@
  */
 
 using System;
-using System.ComponentModel;
 using BSLib.Design.MVP.Controls;
 using Eto.Forms;
 using Eto.Serialization.Xaml;
 using GDModel;
-using GKCore;
 using GKCore.Controllers;
 using GKCore.Interfaces;
 using GKCore.MVP.Controls;
@@ -33,9 +31,10 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class SourceCitEditDlg : EditorDialog, ISourceCitEditDlg
+    public sealed partial class SourceCitEditDlg : CommonDialog<ISourceCitEditDlg, SourceCitEditDlgController>, ISourceCitEditDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private Button btnAccept;
         private Button btnCancel;
@@ -46,15 +45,13 @@ namespace GKUI.Forms
         private Label lblCertainty;
         private ComboBox txtCertainty;
         private ComboBox cmbSource;
-        private TabControl tabsData;
         private TabPage pageCommon;
         private TabPage pageOther;
         private TextBox txtText;
         private GKDateControl dateCtl;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
-
-        private readonly SourceCitEditDlgController fController;
 
         public GDMSourceCitation SourceCitation
         {
@@ -95,28 +92,8 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-            btnSourceAdd.Image = UIHelper.LoadResourceImage("Resources.btn_rec_new.gif");
-
             fController = new SourceCitEditDlgController(this);
             fController.Init(baseWin);
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            e.Cancel = fController.CheckChangesPersistence();
         }
 
         private void btnSourceAdd_Click(object sender, EventArgs e)

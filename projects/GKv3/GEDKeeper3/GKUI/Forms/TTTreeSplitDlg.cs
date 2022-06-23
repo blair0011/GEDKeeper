@@ -29,11 +29,11 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class TTTreeSplitDlg : CommonDialog, ITreeSplitDlg
+    public sealed partial class TTTreeSplitDlg : CommonDialog<ITreeSplitDlg, TreeSplitController>, ITreeSplitDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
-        private TabControl tabsTools;
         private Button btnClose;
         private TabPage pageTreeSplit;
         private Button btnSelectAll;
@@ -45,9 +45,8 @@ namespace GKUI.Forms
         private Button btnDelete;
         private Button btnSave;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
-
-        private readonly TreeSplitController fController;
 
         #region View Interface
 
@@ -66,8 +65,6 @@ namespace GKUI.Forms
         public TTTreeSplitDlg(IBaseWindow baseWin)
         {
             XamlReader.Load(this);
-
-            btnClose.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
 
             fController = new TreeSplitController(this);
             fController.Init(baseWin);

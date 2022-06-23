@@ -26,13 +26,13 @@ using Eto.Serialization.Xaml;
 using GKCore.Controllers;
 using GKCore.MVP.Views;
 using GKCore.Names;
-using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class NameEditDlg : CommonDialog, INameEditDlg
+    public sealed partial class NameEditDlg : CommonDialog<INameEditDlg, NameEditDlgController>, INameEditDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private Label lblName;
         private TextBox txtName;
@@ -46,9 +46,8 @@ namespace GKUI.Forms
         private Label lblMale;
         private TextBox txtMPatr;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
-
-        private readonly NameEditDlgController fController;
 
         public NameEntry IName
         {
@@ -84,26 +83,7 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
             fController = new NameEditDlgController(this);
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            e.Cancel = fController.CheckChangesPersistence();
         }
 
         private void edName_KeyDown(object sender, KeyEventArgs e)

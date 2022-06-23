@@ -29,10 +29,8 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class TTFamilyGroupsDlg : CommonDialog, IFragmentSearchDlg
+    public sealed partial class TTFamilyGroupsDlg : CommonDialog<IFragmentSearchDlg, FragmentSearchController>, IFragmentSearchDlg
     {
-        private readonly FragmentSearchController fController;
-
         #region View Interface
 
         ITreeView IFragmentSearchDlg.GroupsTree
@@ -88,18 +86,12 @@ namespace GKUI.Forms
 
         private void contextMenu_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            var iRec = fController.GetSelectedPerson();
-            miDetails.Enabled = (iRec != null);
-            miGoToRecord.Enabled = (iRec != null);
-            miCopyXRef.Enabled = (iRec != null);
+            fController.OpeningContextMenu();
         }
 
         public void miCopyXRef_Click(object sender, EventArgs e)
         {
-            var rec = fController.GetSelectedPerson();
-            if (rec == null) return;
-
-            UIHelper.SetClipboardText(rec.XRef);
+            fController.CopySelectedXRef();
         }
     }
 }

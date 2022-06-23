@@ -19,7 +19,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using BSLib.Design.MVP.Controls;
 using Eto.Forms;
 using Eto.Serialization.Xaml;
@@ -34,11 +33,11 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public partial class FamilyEditDlg : EditorDialog, IFamilyEditDlg
+    public partial class FamilyEditDlg : CommonDialog<IFamilyEditDlg, FamilyEditDlgController>, IFamilyEditDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
-        private TabControl tabsData;
         private TabPage pageEvents;
         private TabPage pageNotes;
         private TabPage pageMultimedia;
@@ -61,21 +60,19 @@ namespace GKUI.Forms
         private ComboBox cmbMarriageStatus;
         private Label lblRestriction;
         private ComboBox cmbRestriction;
+        private GKSheetList fChildrenList;
+        private GKSheetList fEventsList;
+        private GKSheetList fNotesList;
+        private GKSheetList fMediaList;
+        private GKSheetList fSourcesList;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
-        private readonly FamilyEditDlgController fController;
-
-        private readonly GKSheetList fChildrenList;
-        private readonly GKSheetList fEventsList;
-        private readonly GKSheetList fNotesList;
-        private readonly GKSheetList fMediaList;
-        private readonly GKSheetList fSourcesList;
-
-        public GDMFamilyRecord Family
+        public GDMFamilyRecord FamilyRecord
         {
-            get { return fController.Family; }
-            set { fController.Family = value; }
+            get { return fController.FamilyRecord; }
+            set { fController.FamilyRecord = value; }
         }
 
         #region View Interface
@@ -131,38 +128,8 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-            btnHusbandAdd.Image = UIHelper.LoadResourceImage("Resources.btn_rec_new.gif");
-            btnHusbandDelete.Image = UIHelper.LoadResourceImage("Resources.btn_rec_delete.gif");
-            btnHusbandSel.Image = UIHelper.LoadResourceImage("Resources.btn_jump.gif");
-            btnWifeAdd.Image = UIHelper.LoadResourceImage("Resources.btn_rec_new.gif");
-            btnWifeDelete.Image = UIHelper.LoadResourceImage("Resources.btn_rec_delete.gif");
-            btnWifeSel.Image = UIHelper.LoadResourceImage("Resources.btn_jump.gif");
-
-            txtHusband.TextChanged += EditSpouse_TextChanged;
-            txtWife.TextChanged += EditSpouse_TextChanged;
-
-            fChildrenList = new GKSheetList(pageChilds);
-            fChildrenList.OnItemValidating += FamilyEditDlg_ItemValidating;
-            fChildrenList.OnModify += ModifyChildrenSheet;
-
-            fEventsList = new GKSheetList(pageEvents);
-
-            fNotesList = new GKSheetList(pageNotes);
-
-            fMediaList = new GKSheetList(pageMultimedia);
-
-            fSourcesList = new GKSheetList(pageSources);
-
             fController = new FamilyEditDlgController(this);
             fController.Init(baseWin);
-
-            fChildrenList.ListModel = new FamilyChildrenListModel(baseWin, fController.LocalUndoman);
-            fEventsList.ListModel = new EventsListModel(baseWin, fController.LocalUndoman, false);
-            fNotesList.ListModel = new NoteLinksListModel(baseWin, fController.LocalUndoman);
-            fMediaList.ListModel = new MediaLinksListModel(baseWin, fController.LocalUndoman);
-            fSourcesList.ListModel = new SourceCitationsListModel(baseWin, fController.LocalUndoman);
         }
 
         public void LockEditor(bool locked)
@@ -209,22 +176,6 @@ namespace GKUI.Forms
             if (eArgs.Action == RecordAction.raJump) {
                 fController.JumpToRecord(eArgs.ItemData as GDMIndividualRecord);
             }
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            e.Cancel = fController.CheckChangesPersistence();
         }
 
         public void SetTarget(TargetMode targetType, GDMIndividualRecord target)

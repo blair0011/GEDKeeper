@@ -27,14 +27,15 @@ using GKCore.Controllers;
 using GKCore.Interfaces;
 using GKCore.MVP.Controls;
 using GKCore.MVP.Views;
+using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class TTRecMergeDlg : CommonDialog, IRecMergeDlg
+    public sealed partial class TTRecMergeDlg : CommonDialog<IRecMergeDlg, RecMergeController>, IRecMergeDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
-        private TabControl PageControl1;
         private TabPage pageMerge;
         private Button btnAutoSearch;
         private Button btnSkip;
@@ -44,8 +45,8 @@ namespace GKUI.Forms
         private GroupBox grpSearchPersons;
         private Label lblNameAccuracy;
         private Label lblYearInaccuracy;
-        private NumericUpDown edNameAccuracy;
-        private NumericUpDown edYearInaccuracy;
+        private NumericStepper edNameAccuracy;
+        private NumericStepper edYearInaccuracy;
         private CheckBox chkBirthYear;
         private RadioButton radPersons;
         private RadioButton radNotes;
@@ -53,18 +54,32 @@ namespace GKUI.Forms
         private RadioButton radSources;
         private CheckBox chkBookmarkMerged;
         private GroupBox grpMergeOther;
-        private GKUI.Components.GKMergeControl MergeControl;
         private CheckBox chkIndistinctMatching;
 
-        #endregion
+        private Button btnMergeToRight;
+        private Button btnMergeToLeft;
+        private Button btnRec2Select;
+        private Button btnRec1Select;
+        private TextBox Edit2;
+        private TextBox Edit1;
+        private Label Lab2;
+        private Label Lab1;
+        private HyperView fView1;
+        private HyperView fView2;
 
-        private readonly RecMergeController fController;
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
+        #endregion
 
         #region View Interface
 
-        IMergeControl IRecMergeDlg.MergeCtl
+        IHyperView IRecMergeDlg.View1
         {
-            get { return MergeControl; }
+            get { return fView1; }
+        }
+
+        IHyperView IRecMergeDlg.View2
+        {
+            get { return fView2; }
         }
 
         IButton IRecMergeDlg.SkipBtn
@@ -105,24 +120,16 @@ namespace GKUI.Forms
 
             fController = new RecMergeController(this);
             fController.Init(baseWin);
-
-            MergeControl.Base = baseWin;
-            MergeControl.MergeMode = fController.RMMode;
         }
 
         private void radMergeMode_Click(object sender, EventArgs e)
         {
-            if (radPersons.Checked) fController.RMMode = GDMRecordType.rtIndividual;
-            if (radNotes.Checked) fController.RMMode = GDMRecordType.rtNote;
-            if (radFamilies.Checked) fController.RMMode = GDMRecordType.rtFamily;
-            if (radSources.Checked) fController.RMMode = GDMRecordType.rtSource;
-
-            MergeControl.MergeMode = fController.RMMode;
+            fController.ChangeOption();
         }
 
         private void chkBookmarkMerged_CheckedChanged(object sender, EventArgs e)
         {
-            MergeControl.Bookmark = chkBookmarkMerged.Checked.GetValueOrDefault();
+            fController.ChangeOption();
         }
 
         private void btnSkip_Click(object sender, EventArgs e)
@@ -134,6 +141,36 @@ namespace GKUI.Forms
         {
             fController.Reset();
             fController.SearchDuplicates();
+        }
+
+        private void btnRec1Select_Click(object sender, EventArgs e)
+        {
+            fController.SelectRec1();
+        }
+
+        private void btnRec2Select_Click(object sender, EventArgs e)
+        {
+            fController.SelectRec2();
+        }
+
+        private void btnMergeToLeft_Click(object sender, EventArgs e)
+        {
+            fController.MergeToLeft();
+        }
+
+        private void btnMergeToRight_Click(object sender, EventArgs e)
+        {
+            fController.MergeToRight();
+        }
+
+        public void SetRec1(GDMRecord value)
+        {
+            fController.SetRec1(value);
+        }
+
+        public void SetRec2(GDMRecord value)
+        {
+            fController.SetRec2(value);
         }
     }
 }

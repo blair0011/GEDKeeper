@@ -19,7 +19,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using BSLib.Design.Graphics;
 using BSLib.Design.MVP.Controls;
 using Eto.Drawing;
@@ -38,11 +37,11 @@ using GKUI.Platform;
 
 namespace GKUI.Forms
 {
-    public partial class PersonEditDlg : EditorDialog, IPersonEditDlg
+    public partial class PersonEditDlg : CommonDialog<IPersonEditDlg, PersonEditDlgController>, IPersonEditDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
-        private TabControl tabsPersonData;
         private TabPage pageEvents;
         private TabPage pageNotes;
         private TabPage pageMultimedia;
@@ -96,27 +95,25 @@ namespace GKUI.Forms
         private Label lblMarriedSurname;
         private TabPage pageParents;
         private TabPage pageChilds;
+        private GKSheetList fEventsList;
+        private GKSheetList fSpousesList;
+        private GKSheetList fAssociationsList;
+        private GKSheetList fGroupsList;
+        private GKSheetList fNotesList;
+        private GKSheetList fMediaList;
+        private GKSheetList fSourcesList;
+        private GKSheetList fUserRefList;
+        private GKSheetList fNamesList;
+        private GKSheetList fParentsList;
+        private GKSheetList fChildrenList;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
-        private readonly PersonEditDlgController fController;
-
-        private readonly GKSheetList fEventsList;
-        private readonly GKSheetList fSpousesList;
-        private readonly GKSheetList fAssociationsList;
-        private readonly GKSheetList fGroupsList;
-        private readonly GKSheetList fNotesList;
-        private readonly GKSheetList fMediaList;
-        private readonly GKSheetList fSourcesList;
-        private readonly GKSheetList fUserRefList;
-        private readonly GKSheetList fNamesList;
-        private readonly GKSheetList fParentsList;
-        private readonly GKSheetList fChildrenList;
-
-        public GDMIndividualRecord Person
+        public GDMIndividualRecord IndividualRecord
         {
-            get { return fController.Person; }
-            set { fController.Person = value; }
+            get { return fController.IndividualRecord; }
+            set { fController.IndividualRecord = value; }
         }
 
         public GDMIndividualRecord Target
@@ -275,74 +272,11 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            txtMarriedSurname.TextChanged += Names_TextChanged;
-            txtSurname.TextChanged += Names_TextChanged;
-            txtName.TextChanged += Names_TextChanged;
-            cmbPatronymic.TextChanged += Names_TextChanged;
-
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-            btnPortraitAdd.Image = UIHelper.LoadResourceImage("Resources.btn_rec_new.gif");
-            btnPortraitDelete.Image = UIHelper.LoadResourceImage("Resources.btn_rec_delete.gif");
-            btnParentsAdd.Image = UIHelper.LoadResourceImage("Resources.btn_rec_new.gif");
-            btnParentsEdit.Image = UIHelper.LoadResourceImage("Resources.btn_rec_edit.gif");
-            btnParentsDelete.Image = UIHelper.LoadResourceImage("Resources.btn_rec_delete.gif");
-            btnFatherAdd.Image = UIHelper.LoadResourceImage("Resources.btn_rec_new.gif");
-            btnFatherDelete.Image = UIHelper.LoadResourceImage("Resources.btn_rec_delete.gif");
-            btnFatherSel.Image = UIHelper.LoadResourceImage("Resources.btn_jump.gif");
-            btnMotherAdd.Image = UIHelper.LoadResourceImage("Resources.btn_rec_new.gif");
-            btnMotherDelete.Image = UIHelper.LoadResourceImage("Resources.btn_rec_delete.gif");
-            btnMotherSel.Image = UIHelper.LoadResourceImage("Resources.btn_jump.gif");
-            btnNameCopy.Image = UIHelper.LoadResourceImage("Resources.btn_copy.gif");
-
-            fEventsList = new GKSheetList(pageEvents);
-
-            fSpousesList = new GKSheetList(pageSpouses);
-            fSpousesList.OnModify += ModifySpousesSheet;
-            fSpousesList.OnBeforeChange += BeforeChangeSpousesSheet;
-
-            fNamesList = new GKSheetList(pageNames);
-            fNamesList.OnModify += ModifyNamesSheet;
-
-            fAssociationsList = new GKSheetList(pageAssociations);
-            fAssociationsList.OnModify += ModifyAssociationsSheet;
-
-            fGroupsList = new GKSheetList(pageGroups);
-            fGroupsList.OnModify += ModifyGroupsSheet;
-
-            fNotesList = new GKSheetList(pageNotes);
-
-            fMediaList = new GKSheetList(pageMultimedia);
-
-            fSourcesList = new GKSheetList(pageSources);
-
-            fUserRefList = new GKSheetList(pageUserRefs);
-
-            fParentsList = new GKSheetList(pageParents);
-            fParentsList.OnModify += ModifyParentsSheet;
-
-            fChildrenList = new GKSheetList(pageChilds);
-            fChildrenList.OnItemValidating += PersonEditDlg_ItemValidating;
-            fChildrenList.OnModify += ModifyChildrenSheet;
-
             imgPortrait.AddButton(btnPortraitAdd);
             imgPortrait.AddButton(btnPortraitDelete);
 
             fController = new PersonEditDlgController(this);
             fController.Init(baseWin);
-
-            fEventsList.ListModel = new EventsListModel(baseWin, fController.LocalUndoman, true);
-            fNotesList.ListModel = new NoteLinksListModel(baseWin, fController.LocalUndoman);
-            fMediaList.ListModel = new MediaLinksListModel(baseWin, fController.LocalUndoman);
-            fSourcesList.ListModel = new SourceCitationsListModel(baseWin, fController.LocalUndoman);
-            fAssociationsList.ListModel = new AssociationsListModel(baseWin, fController.LocalUndoman);
-
-            fGroupsList.ListModel = new GroupsSublistModel(baseWin, fController.LocalUndoman);
-            fNamesList.ListModel = new NamesSublistModel(baseWin, fController.LocalUndoman);
-            fSpousesList.ListModel = new SpousesSublistModel(baseWin, fController.LocalUndoman);
-            fUserRefList.ListModel = new URefsSublistModel(baseWin, fController.LocalUndoman);
-            fParentsList.ListModel = new ParentsSublistModel(baseWin, fController.LocalUndoman);
-            fChildrenList.ListModel = new IndividualChildrenListModel(baseWin, fController.LocalUndoman);
         }
 
         private void cbSex_SelectedIndexChanged(object sender, EventArgs e)
@@ -392,26 +326,10 @@ namespace GKUI.Forms
             }
         }
 
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            e.Cancel = fController.CheckChangesPersistence();
-        }
-
         private void ModifyNamesSheet(object sender, ModifyEventArgs eArgs)
         {
             if (eArgs.Action == RecordAction.raMoveUp || eArgs.Action == RecordAction.raMoveDown || eArgs.Action == RecordAction.raEdit) {
-                fController.UpdateNameControls(fController.Person.PersonalNames[0]);
+                fController.UpdateNameControls(fController.IndividualRecord.PersonalNames[0]);
             }
         }
 
@@ -466,7 +384,7 @@ namespace GKUI.Forms
         private void Names_TextChanged(object sender, EventArgs e)
         {
             Title = string.Format("{0} \"{1} {2} {3}\" [{4}]", LangMan.LS(LSID.LSID_Person), txtSurname.Text, txtName.Text,
-                                  cmbPatronymic.Text, fController.Person.GetXRefNum());
+                                  cmbPatronymic.Text, fController.IndividualRecord.GetXRefNum());
         }
 
         private void btnFatherAdd_Click(object sender, EventArgs e)
@@ -516,7 +434,7 @@ namespace GKUI.Forms
 
         private void btnNameCopy_Click(object sender, EventArgs e)
         {
-            UIHelper.SetClipboardText(GKUtils.GetNameString(fController.Person, true, false));
+            fController.CopyPersonName();
         }
 
         private void btnPortraitAdd_Click(object sender, EventArgs e)

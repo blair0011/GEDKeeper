@@ -37,6 +37,7 @@ namespace GKUI.Forms
     public partial class CircleChartWin : PrintableForm, ICircleChartWin
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private ToolBar ToolBar1;
         private ButtonToolItem tbImageSave;
@@ -46,6 +47,7 @@ namespace GKUI.Forms
         private ButtonToolItem tbDocPrint;
         private ButtonToolItem tbOptions;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
         private readonly CircleChartWinController fController;
@@ -70,13 +72,6 @@ namespace GKUI.Forms
         public CircleChartWin(IBaseWindow baseWin, GDMIndividualRecord startPerson, CircleChartType type)
         {
             XamlReader.Load(this);
-
-            tbImageSave.Image = UIHelper.LoadResourceImage("Resources.btn_save_image.gif");
-            tbDocPreview.Image = UIHelper.LoadResourceImage("Resources.btn_preview.gif");
-            tbDocPrint.Image = UIHelper.LoadResourceImage("Resources.btn_print.gif");
-            tbPrev.Image = UIHelper.LoadResourceImage("Resources.btn_left.gif");
-            tbNext.Image = UIHelper.LoadResourceImage("Resources.btn_right.gif");
-            tbOptions.Image = UIHelper.LoadResourceImage("Resources.btn_tools.gif");
 
             fBaseWin = baseWin;
 

@@ -18,7 +18,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using Eto.Forms;
 using Eto.Serialization.Xaml;
 using GKCore.Controllers;
@@ -28,17 +27,17 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public partial class LanguageSelectDlg : CommonDialog, ILanguageSelectDlg
+    public partial class LanguageSelectDlg : CommonDialog<ILanguageSelectDlg, LanguageSelectDlgController>, ILanguageSelectDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private GKListView lstLanguages;
         private Button btnCancel;
         private Button btnAccept;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
-
-        private readonly LanguageSelectDlgController fController;
 
         public int SelectedLanguage
         {
@@ -59,17 +58,9 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
             lstLanguages.AddColumn(@"Language", 300);
 
             fController = new LanguageSelectDlgController(this);
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
         }
     }
 }

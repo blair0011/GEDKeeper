@@ -29,26 +29,24 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class TTPatSearchDlg : CommonDialog, IPatriarchsSearchDlg
+    public sealed partial class TTPatSearchDlg : CommonDialog<IPatriarchsSearchDlg, PatriarchsSearchController>, IPatriarchsSearchDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
-        private TabControl tabsTools;
         private Button btnClose;
         private TabPage pagePatSearch;
         private Button btnPatSearch;
         private Panel panPatriarchsContainer;
         private Label lblMinGenerations;
-        private NumericUpDown edMinGens;
+        private NumericStepper edMinGens;
         private Button btnSetPatriarch;
         private Button btnPatriarchsDiagram;
         private CheckBox chkWithoutDates;
-
-        #endregion
-
-        private readonly PatriarchsSearchController fController;
-
         private GKListView ListPatriarchs;
+
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
+        #endregion
 
         #region View Interface
 
@@ -72,12 +70,6 @@ namespace GKUI.Forms
         public TTPatSearchDlg(IBaseWindow baseWin)
         {
             XamlReader.Load(this);
-
-            btnClose.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
-            ListPatriarchs = new GKListView();
-            ListPatriarchs.MouseDoubleClick += ListPatriarchs_DblClick;
-            panPatriarchsContainer.Content = ListPatriarchs;
 
             fController = new PatriarchsSearchController(this);
             fController.Init(baseWin);

@@ -19,7 +19,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using BSLib.Design.MVP.Controls;
 using Eto.Forms;
 using Eto.Serialization.Xaml;
@@ -32,28 +31,26 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class RepositoryEditDlg : EditorDialog, IRepositoryEditDlg
+    public sealed partial class RepositoryEditDlg : CommonDialog<IRepositoryEditDlg, RepositoryEditDlgController>, IRepositoryEditDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private Button btnAccept;
         private Button btnCancel;
         private Label lblName;
         private TextBox txtName;
-        private TabControl tabsData;
         private TabPage pageNotes;
         private Button btnAddress;
+        private GKSheetList fNotesList;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
-        private readonly RepositoryEditDlgController fController;
-
-        private readonly GKSheetList fNotesList;
-
-        public GDMRepositoryRecord Repository
+        public GDMRepositoryRecord RepositoryRecord
         {
-            get { return fController.Repository; }
-            set { fController.Repository = value; }
+            get { return fController.RepositoryRecord; }
+            set { fController.RepositoryRecord = value; }
         }
 
         #region View Interface
@@ -74,36 +71,13 @@ namespace GKUI.Forms
         {
             XamlReader.Load(this);
 
-            btnAccept.Image = UIHelper.LoadResourceImage("Resources.btn_accept.gif");
-            btnCancel.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
-            fNotesList = new GKSheetList(pageNotes);
-
             fController = new RepositoryEditDlgController(this);
             fController.Init(baseWin);
-
-            fNotesList.ListModel = new NoteLinksListModel(baseWin, fController.LocalUndoman);
         }
 
         private void btnAddress_Click(object sender, EventArgs e)
         {
             fController.ModifyAddress();
-        }
-
-        private void btnAccept_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-            e.Cancel = fController.CheckChangesPersistence();
         }
     }
 }

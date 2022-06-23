@@ -31,24 +31,22 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class TTFamilyGroupsDlg : CommonDialog, IFragmentSearchDlg
+    public sealed partial class TTFamilyGroupsDlg : CommonDialog<IFragmentSearchDlg, FragmentSearchController>, IFragmentSearchDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
-        private TabControl tabsTools;
         private Button btnClose;
         private TabPage pageFamilyGroups;
         private TreeView tvGroups;
         private GKUI.Components.LogChart gkLogChart1;
         private Button btnAnalyseGroups;
-        private ContextMenu contextMenu;
         private ButtonMenuItem miDetails;
         private ButtonMenuItem miGoToRecord;
         private ButtonMenuItem miCopyXRef;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
-
-        private readonly FragmentSearchController fController;
 
         #region View Interface
 
@@ -66,37 +64,12 @@ namespace GKUI.Forms
 
         public TTFamilyGroupsDlg(IBaseWindow baseWin)
         {
-            InitializeComponent();
-
-            btnClose.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
+            XamlReader.Load(this);
 
             fController = new FragmentSearchController(this);
             fController.Init(baseWin);
 
             gkLogChart1.OnHintRequest += HintRequestEventHandler;
-        }
-
-        private void InitializeComponent()
-        {
-            XamlReader.Load(this);
-
-            miDetails = new ButtonMenuItem();
-            miDetails.Click += miDetails_Click;
-
-            miGoToRecord = new ButtonMenuItem();
-            miGoToRecord.Click += miGoToRecord_Click;
-
-            miCopyXRef = new ButtonMenuItem();
-            miCopyXRef.Click += miCopyXRef_Click;
-
-            contextMenu = new ContextMenu();
-            contextMenu.Items.AddRange(new MenuItem[] {
-                miDetails,
-                miGoToRecord,
-                miCopyXRef
-            });
-            contextMenu.Opening += contextMenu_Opening;
-            tvGroups.ContextMenu = contextMenu;
         }
 
         private void btnAnalyseGroups_Click(object sender, EventArgs e)
@@ -128,18 +101,12 @@ namespace GKUI.Forms
 
         private void contextMenu_Opening(object sender, EventArgs e)
         {
-            var iRec = fController.GetSelectedPerson();
-            miDetails.Enabled = (iRec != null);
-            miGoToRecord.Enabled = (iRec != null);
-            miCopyXRef.Enabled = (iRec != null);
+            fController.OpeningContextMenu();
         }
 
         public void miCopyXRef_Click(object sender, EventArgs e)
         {
-            var rec = fController.GetSelectedPerson();
-            if (rec == null) return;
-
-            UIHelper.SetClipboardText(rec.XRef);
+            fController.CopySelectedXRef();
         }
     }
 }

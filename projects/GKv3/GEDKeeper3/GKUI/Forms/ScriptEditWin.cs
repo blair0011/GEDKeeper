@@ -28,13 +28,13 @@ using GKCore;
 using GKCore.Controllers;
 using GKCore.Interfaces;
 using GKCore.MVP.Views;
-using GKUI.Components;
 
 namespace GKUI.Forms
 {
     public sealed partial class ScriptEditWin : CommonDialog, IScriptEditWin
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
         private ToolBar ToolBar1;
         private ButtonToolItem tbLoadScript;
@@ -45,6 +45,7 @@ namespace GKUI.Forms
         private ButtonToolItem tbNewScript;
         private Splitter splitContainer1;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
 
         private readonly ScriptEditWinController fController;
@@ -151,11 +152,6 @@ namespace GKUI.Forms
         public ScriptEditWin(IBaseWindow baseWin)
         {
             XamlReader.Load(this);
-
-            tbNewScript.Image = UIHelper.LoadResourceImage("Resources.btn_create_new.gif");
-            tbLoadScript.Image = UIHelper.LoadResourceImage("Resources.btn_load.gif");
-            tbSaveScript.Image = UIHelper.LoadResourceImage("Resources.btn_save.gif");
-            tbRun.Image = UIHelper.LoadResourceImage("Resources.btn_start.gif");
 
             fController = new ScriptEditWinController(this);
             fController.Init(baseWin);

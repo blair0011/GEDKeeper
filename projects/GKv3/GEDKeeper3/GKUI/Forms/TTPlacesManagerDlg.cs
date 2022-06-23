@@ -28,22 +28,20 @@ using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class TTPlacesManagerDlg : CommonDialog, IPlacesManagerDlg
+    public sealed partial class TTPlacesManagerDlg : CommonDialog<IPlacesManagerDlg, PlacesManagerController>, IPlacesManagerDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
-        private TabControl tabsTools;
         private Button btnClose;
         private TabPage pagePlaceManage;
         private Panel panPlacesContainer;
         private Button btnAnalysePlaces;
         private Button btnIntoList;
-
-        #endregion
-
-        private readonly PlacesManagerController fController;
-
         private GKListView ListPlaces;
+
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
+        #endregion
 
         #region View Interface
 
@@ -57,14 +55,6 @@ namespace GKUI.Forms
         public TTPlacesManagerDlg(IBaseWindow baseWin)
         {
             XamlReader.Load(this);
-
-            btnClose.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
-
-            ListPlaces = new GKListView();
-            ListPlaces.Sorting = true;
-            ListPlaces.AllowMultipleSelection = true;
-            ListPlaces.MouseDoubleClick += ListPlaces_DblClick;
-            panPlacesContainer.Content = ListPlaces;
 
             fController = new PlacesManagerController(this);
             fController.Init(baseWin);

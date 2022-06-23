@@ -25,15 +25,14 @@ using Eto.Serialization.Xaml;
 using GKCore.Controllers;
 using GKCore.Interfaces;
 using GKCore.MVP.Views;
-using GKUI.Components;
 
 namespace GKUI.Forms
 {
-    public sealed partial class TTTreeMergeDlg : CommonDialog, ITreeMergeDlg
+    public sealed partial class TTTreeMergeDlg : CommonDialog<ITreeMergeDlg, TreeMergeController>, ITreeMergeDlg
     {
         #region Design components
+#pragma warning disable CS0169, CS0649, IDE0044, IDE0051
 
-        private TabControl tabsTools;
         private Button btnClose;
         private TabPage pageTreeMerge;
         private Label lblMasterBase;
@@ -43,9 +42,8 @@ namespace GKUI.Forms
         private Button btnTreeMerge;
         private TextArea mSyncRes;
 
+#pragma warning restore CS0169, CS0649, IDE0044, IDE0051
         #endregion
-
-        private readonly TreeMergeController fController;
 
         #region View Interface
 
@@ -64,8 +62,6 @@ namespace GKUI.Forms
         public TTTreeMergeDlg(IBaseWindow baseWin)
         {
             XamlReader.Load(this);
-
-            btnClose.Image = UIHelper.LoadResourceImage("Resources.btn_cancel.gif");
 
             fController = new TreeMergeController(this);
             fController.Init(baseWin);

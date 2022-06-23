@@ -20,6 +20,9 @@
 
 using System;
 using System.Globalization;
+using System.Text;
+using System.Threading;
+using BSLib;
 using BSLib.Design.IoC;
 using BSLib.Design.MVP;
 using Eto.Drawing;
@@ -46,6 +49,12 @@ namespace GKUI.Platform
         }
 
         public EtoAppHost()
+        {
+            InitCommonStyles();
+            InitPlatformStyles();
+        }
+
+        private static void InitCommonStyles()
         {
             Eto.Style.Add<TableLayout>("paddedTable", table => {
                 table.Padding = new Padding(8);
@@ -89,6 +98,26 @@ namespace GKUI.Platform
                 button.ImagePosition = ButtonImagePosition.Left;
                 button.Size = new Size(26, 26);
             });
+        }
+
+        private static void InitPlatformStyles()
+        {
+#if OS_LINUX
+            // FIXME: don't work
+            Eto.Style.Add<Eto.GtkSharp.Forms.ToolBar.ToolBarHandler>("tbsi", h => {
+                // executed but no result
+                h.Control.ToolbarStyle = Gtk.ToolbarStyle.BothHoriz;
+                //h.Control.ToolbarStyle = Gtk.ToolbarStyle.Icons;
+                h.Control.IconSize = Gtk.IconSize.SmallToolbar;
+            });
+
+            Eto.Style.Add<Eto.GtkSharp.Forms.Controls.GridColumnHandler>(null, h => {
+                Pango.FontDescription tpf = new Pango.FontDescription();
+                tpf.Weight = Pango.Weight.Normal;
+                h.Control.Button.ModifyFont(tpf);
+                h.Control.Button.ModifyFg(Gtk.StateType.Normal, new Gdk.Color(0, 0, 0));
+            });
+#endif
         }
 
         private void OnApplicationExit(object sender, System.ComponentModel.CancelEventArgs e)
@@ -137,9 +166,9 @@ namespace GKUI.Platform
             Window activeWin = GetActiveWindow() as Window;
 
             if (keepModeless) {
-                #if !MONO
+#if !MONO
                 //NativeMethods.PostMessage(mainHandle, NativeMethods.WM_KEEPMODELESS, IntPtr.Zero, IntPtr.Zero);
-                #endif
+#endif
             }
 
             //UIHelper.CenterFormByParent((Window)form, mainHandle);
@@ -152,9 +181,9 @@ namespace GKUI.Platform
             Form frm = form as Form;
 
             if (frm != null) {
-                #if !MONO
+#if !MONO
                 //NativeMethods.EnableWindow(frm.Handle, value);
-                #endif
+#endif
             }
         }
 
@@ -205,13 +234,13 @@ namespace GKUI.Platform
             }
         }
 
-        private static Eto.Forms.WindowState[] efWindowStates = new Eto.Forms.WindowState[] {
+        private static readonly Eto.Forms.WindowState[] efWindowStates = new Eto.Forms.WindowState[] {
             Eto.Forms.WindowState.Normal,
             Eto.Forms.WindowState.Minimized,
             Eto.Forms.WindowState.Maximized
         };
 
-        private static GKCore.Options.WindowState[] gkWindowStates = new GKCore.Options.WindowState[] {
+        private static readonly GKCore.Options.WindowState[] gkWindowStates = new GKCore.Options.WindowState[] {
             GKCore.Options.WindowState.Normal,
             GKCore.Options.WindowState.Maximized,
             GKCore.Options.WindowState.Minimized
@@ -240,6 +269,37 @@ namespace GKUI.Platform
             Application.Instance.Quit();
         }
 
+        public override void ExecuteWork(ProgressStart proc)
+        {
+            var activeWnd = GetActiveWindow() as Window;
+
+            using (var progressForm = new ProgressDlg()) {
+                var workerThread = new Thread((obj) => {
+                    proc((IProgressController)obj);
+                });
+
+                try {
+                    workerThread.Start(progressForm);
+
+                    progressForm.ShowModal(activeWnd);
+                } catch (Exception ex) {
+                    Logger.WriteError("ExecuteWork()", ex);
+                }
+            }
+        }
+
+        public override bool ExecuteWorkExt(ProgressStart proc, string title)
+        {
+            return false;
+        }
+
+        public override ExtRect GetActiveScreenWorkingArea()
+        {
+            var activeForm = GetActiveWindow() as Form;
+            var screen = Screen.FromRectangle(activeForm.Bounds);
+            return UIHelper.Rt2Rt(new Rectangle(screen.WorkingArea));
+        }
+
         #region KeyLayout functions
 
         public override int GetKeyLayout()
@@ -257,6 +317,11 @@ namespace GKUI.Platform
             }
         }
 
+        public override void SetClipboardText(string text)
+        {
+            UIHelper.SetClipboardText(text);
+        }
+
         #endregion
 
         #region Bootstrapper
@@ -269,6 +334,11 @@ namespace GKUI.Platform
             if (mdi)
                 throw new ArgumentException("MDI obsolete");
 
+#if NETCOREAPP3_1_OR_GREATER
+            // support for legacy encodings
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
+
             var appHost = new EtoAppHost();
             IContainer container = AppHost.Container;
 
@@ -280,7 +350,6 @@ namespace GKUI.Platform
             // controls and other
             container.Register<IStdDialogs, EtoStdDialogs>(LifeCycle.Singleton);
             container.Register<IGraphicsProviderEx, EtoGfxProvider>(LifeCycle.Singleton);
-            container.Register<IProgressController, ProgressController>(LifeCycle.Singleton);
             container.Register<ITreeChart, TreeChartBox>(LifeCycle.Transient);
 
             // dialogs
@@ -341,7 +410,7 @@ namespace GKUI.Platform
             ControlsManager.RegisterHandlerType(typeof(ComboBox), typeof(ComboBoxHandler));
             ControlsManager.RegisterHandlerType(typeof(Label), typeof(LabelHandler));
             ControlsManager.RegisterHandlerType(typeof(MaskedTextBox), typeof(MaskedTextBoxHandler));
-            ControlsManager.RegisterHandlerType(typeof(NumericUpDown), typeof(NumericBoxHandler));
+            ControlsManager.RegisterHandlerType(typeof(NumericStepper), typeof(NumericBoxHandler));
             ControlsManager.RegisterHandlerType(typeof(ProgressBar), typeof(ProgressBarHandler));
             ControlsManager.RegisterHandlerType(typeof(RadioButton), typeof(RadioButtonHandler));
             ControlsManager.RegisterHandlerType(typeof(RadioButtonEx), typeof(RadioButtonHandler));
@@ -357,6 +426,7 @@ namespace GKUI.Platform
             ControlsManager.RegisterHandlerType(typeof(TabPage), typeof(TabPageHandler));
             ControlsManager.RegisterHandlerType(typeof(GroupBox), typeof(GroupBoxHandler));
             ControlsManager.RegisterHandlerType(typeof(ButtonToolItem), typeof(ButtonToolItemHandler));
+            ControlsManager.RegisterHandlerType(typeof(DropDownToolItem), typeof(ButtonToolItemHandler));
 
             ControlsManager.RegisterHandlerType(typeof(GKComboBox), typeof(ComboBoxHandler));
             ControlsManager.RegisterHandlerType(typeof(LogChart), typeof(LogChartHandler));
@@ -366,5 +436,22 @@ namespace GKUI.Platform
         }
 
         #endregion
+
+        public static void Startup(string[] args)
+        {
+            ConfigureBootstrap(false);
+            CheckPortable(args);
+            Logger.Init(GetLogFilename());
+            LogSysInfo();
+
+            AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionsHandler;
+        }
+
+        private static void UnhandledExceptionsHandler(object sender, UnhandledExceptionEventArgs e)
+        {
+            // Saving the copy for restoration
+            AppHost.Instance.CriticalSave();
+            Logger.WriteError("GK.UnhandledExceptionsHandler()", (Exception)e.ExceptionObject);
+        }
     }
 }

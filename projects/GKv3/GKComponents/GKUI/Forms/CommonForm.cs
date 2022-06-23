@@ -19,11 +19,13 @@
  */
 
 using System;
+using System.ComponentModel;
 using System.Reflection;
 using BSLib.Design.MVP;
 using Eto.Forms;
+using GKCore;
 using GKCore.Interfaces;
-using GKUI.Components;
+using GKCore.MVP;
 
 namespace GKUI.Forms
 {
@@ -72,7 +74,8 @@ namespace GKUI.Forms
 
         public object GetControl(string controlName)
         {
-            object result = this.GetType().GetField(controlName, BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this);
+            var field = this.GetType().GetField(controlName, BindingFlags.NonPublic | BindingFlags.Instance);
+            object result = field.GetValue(this);
             if (result == null) {
                 result = this.FindChild(controlName);
             }
@@ -95,6 +98,17 @@ namespace GKUI.Forms
         public virtual void SetLocale()
         {
         }
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class CommonWindow<TView, TController> : CommonWindow
+        where TView : IView
+        where TController : FormController<TView>
+    {
+        protected TController fController;
     }
 
 
@@ -164,11 +178,6 @@ namespace GKUI.Forms
             Close(DialogResult.Cancel);
         }
 
-        public void SetPredefProperties(int width, int height, bool fontPreset = true)
-        {
-            UIHelper.SetPredefProperties(this, width, height, fontPreset);
-        }
-
         protected T GetControlHandler<T>(object control) where T : class, IControl
         {
             return fControlsManager.GetControl<T>(control);
@@ -182,6 +191,41 @@ namespace GKUI.Forms
                 result = this.FindChild(controlName);
             }
             return result;
+        }
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class CommonDialog<TView, TController> : CommonDialog
+        where TView : IView
+        where TController : DialogController<TView>
+    {
+        protected TController fController;
+
+        protected virtual void AcceptClickHandler(object sender, EventArgs e)
+        {
+            try {
+                DialogResult = fController.Accept() ? DialogResult.Ok : DialogResult.None;
+            } catch (Exception ex) {
+                Logger.WriteError("CommonDialog<>.AcceptClickHandler()", ex);
+            }
+        }
+
+        protected override void CancelClickHandler(object sender, EventArgs e)
+        {
+            try {
+                DialogResult = fController.Cancel() ? DialogResult.Cancel : DialogResult.None;
+            } catch (Exception ex) {
+                Logger.WriteError("CommonDialog<>.CancelClickHandler()", ex);
+            }
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            e.Cancel = fController.CheckChangesPersistence();
         }
     }
 }

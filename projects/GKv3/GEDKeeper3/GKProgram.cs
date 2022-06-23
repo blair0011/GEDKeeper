@@ -20,19 +20,19 @@
 
 using System;
 using System.Reflection;
-using Eto;
 using Eto.Forms;
 using GKCore;
+using GKCore.SingleInstance;
 using GKUI.Platform;
 
-[assembly: AssemblyTitle("GEDKeeper3.Wpf")]
+[assembly: AssemblyTitle("GEDKeeper3")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyProduct(GKData.APP_TITLE)]
 [assembly: AssemblyCopyright(GKData.APP_COPYRIGHT)]
 [assembly: AssemblyVersion(GKData.APP_VERSION_3X)]
 [assembly: AssemblyCulture("")]
 
-namespace GEDKeeper3.Wpf
+namespace GEDKeeper3
 {
     /// <summary>
     /// The main startup class of application.
@@ -42,27 +42,27 @@ namespace GEDKeeper3.Wpf
         [STAThread]
         public static void Main(string[] args)
         {
-#if NETCOREAPP3_1
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-#endif
-            //Style.Add<ButtonToolItemHandler>("icons", h => h.Widget.Image.);
-            //Style.Add<ButtonHandler>("icons", h => h.Widget.Image.);
+            EtoAppHost.Startup(args);
 
-            EtoAppHost.ConfigureBootstrap(false);
-            AppHost.CheckPortable(args);
-            Logger.Init(AppHost.GetLogFilename());
-            AppHost.LogSysInfo();
+            var application = new Application();
 
-            var application = new Application(Platforms.Wpf);
+            application.Platform.Add<DropDownToolItem.IHandler>(() => new DropDownToolItemHandler());
+            application.Platform.Add<NativeHostControl.IHandler>(() => new NativeHostControlHandler());
 
-            AppHost.InitSettings();
-            try {
-                var appHost = (EtoAppHost)AppHost.Instance;
-                appHost.Init(args, false);
+            using (var tracker = new SingleInstanceTracker(GKData.APP_TITLE, AppHost.GetSingleInstanceEnforcer)) {
+                if (tracker.IsFirstInstance) {
+                    AppHost.InitSettings();
+                    try {
+                        var appHost = (EtoAppHost)AppHost.Instance;
+                        appHost.Init(args, false);
 
-                application.Run();
-            } finally {
-                AppHost.DoneSettings();
+                        application.Run();
+                    } finally {
+                        AppHost.DoneSettings();
+                    }
+                } else {
+                    tracker.SendMessageToFirstInstance(args);
+                }
             }
         }
     }

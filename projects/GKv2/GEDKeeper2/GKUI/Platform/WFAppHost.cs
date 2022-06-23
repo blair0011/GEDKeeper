@@ -22,7 +22,9 @@ using System;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.Threading;
 using System.Windows.Forms;
+using BSLib;
 using BSLib.Design.Handlers;
 using BSLib.Design.IoC;
 using BSLib.Design.MVP;
@@ -194,13 +196,77 @@ namespace GKUI.Platform
 
         public override ITimer CreateTimer(double msInterval, EventHandler elapsedHandler)
         {
-            var result = new WinUITimer(msInterval, elapsedHandler);
+            var result = new WFUITimer(msInterval, elapsedHandler);
             return result;
         }
 
         public override void Quit()
         {
             Application.Exit();
+        }
+
+        public override void ExecuteWork(ProgressStart proc)
+        {
+            var activeWnd = GetActiveWindow() as Form;
+
+            using (var progressForm = new ProgressDlg()) {
+                var workerThread = new Thread((obj) => {
+                    proc((IProgressController)obj);
+                });
+
+                try {
+                    workerThread.Start(progressForm);
+
+                    progressForm.ShowDialog(activeWnd);
+                } catch (Exception ex) {
+                    Logger.WriteError("ExecuteWork()", ex);
+                }
+            }
+        }
+
+        public override bool ExecuteWorkExt(ProgressStart proc, string title)
+        {
+            var activeWnd = GetActiveWindow() as Form;
+
+            using (var progressForm = new ProgressDlg()) {
+                progressForm.Text = title;
+
+                var threadWorker = new Thread((obj) => {
+                    proc((IProgressController)obj);
+                });
+
+                DialogResult dialogResult = DialogResult.Abort;
+                try {
+                    threadWorker.Start(progressForm);
+
+                    dialogResult = progressForm.ShowDialog(activeWnd);
+                } finally {
+                    threadWorker.Join();
+                }
+
+                if (dialogResult == DialogResult.Abort) {
+                    if (progressForm.ThreadError.Message == "") {
+                        // Abort means there were file IO errors
+                        StdDialogs.ShowAlert("UnkProblem" /*fLangMan.LS(PLS.LSID_UnkProblem)*/);
+                    } else {
+                        // Abort means there were file IO errors
+                        StdDialogs.ShowAlert(progressForm.ThreadError.Message);
+                    }
+                }
+
+                if (dialogResult != DialogResult.OK) {
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        public override ExtRect GetActiveScreenWorkingArea()
+        {
+            var activeForm = GetActiveWindow() as Form;
+            var screen = Screen.FromRectangle(activeForm.Bounds);
+            return UIHelper.Rt2Rt(screen.WorkingArea);
         }
 
         #region KeyLayout functions
@@ -227,6 +293,11 @@ namespace GKUI.Platform
             }
         }
 
+        public override void SetClipboardText(string text)
+        {
+            UIHelper.SetClipboardText(text);
+        }
+
         #endregion
 
         #region Bootstrapper
@@ -250,7 +321,6 @@ namespace GKUI.Platform
             // controls and other
             container.Register<IStdDialogs, WFStdDialogs>(LifeCycle.Singleton);
             container.Register<IGraphicsProviderEx, WFGfxProvider>(LifeCycle.Singleton);
-            container.Register<IProgressController, ProgressController>(LifeCycle.Singleton);
             container.Register<ITreeChart, TreeChartBox>(LifeCycle.Transient);
 
             // dialogs
@@ -323,6 +393,7 @@ namespace GKUI.Platform
             ControlsManager.RegisterHandlerType(typeof(TabPage), typeof(TabPageHandler));
             ControlsManager.RegisterHandlerType(typeof(GroupBox), typeof(GroupBoxHandler));
             ControlsManager.RegisterHandlerType(typeof(ToolStripButton), typeof(ButtonToolItemHandler));
+            ControlsManager.RegisterHandlerType(typeof(ToolStripDropDownButton), typeof(DropDownToolItemHandler));
 
             ControlsManager.RegisterHandlerType(typeof(GKComboBox), typeof(ComboBoxHandler));
             ControlsManager.RegisterHandlerType(typeof(LogChart), typeof(LogChartHandler));
@@ -353,5 +424,32 @@ namespace GKUI.Platform
         #endif
 
         #endregion
+
+        public static void Startup(string[] args)
+        {
+            ConfigureBootstrap(false);
+            CheckPortable(args);
+            Logger.Init(GetLogFilename());
+            LogSysInfo();
+
+            Application.ThreadException += ExExceptionHandler;
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException, true);
+            AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionsHandler;
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+        }
+
+        private static void ExExceptionHandler(object sender, ThreadExceptionEventArgs args)
+        {
+            Logger.WriteError("GK.ExExceptionHandler()", args.Exception);
+        }
+
+        private static void UnhandledExceptionsHandler(object sender, UnhandledExceptionEventArgs args)
+        {
+            // Saving the copy for restoration
+            AppHost.Instance.CriticalSave();
+            Logger.WriteError("GK.UnhandledExceptionsHandler()", (Exception)args.ExceptionObject);
+        }
     }
 }

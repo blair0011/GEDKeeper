@@ -43,8 +43,11 @@ namespace GKCore.Controllers
 
         public void CheckGroups()
         {
-            IProgressController progress = AppHost.Progress;
-            List<List<GDMRecord>> treeFragments = TreeTools.SearchTreeFragments(fBase.Context.Tree, progress);
+            List<List<GDMRecord>> treeFragments = null;
+
+            AppHost.Instance.ExecuteWork((controller) => {
+                treeFragments = TreeTools.SearchTreeFragments(fBase.Context.Tree, controller);
+            });
 
             fView.LogChart.Clear();
             fView.GroupsTree.BeginUpdate();
@@ -103,6 +106,13 @@ namespace GKCore.Controllers
             BaseController.ViewRecordInfo(fBase, iRec);
         }
 
+        public void CopySelectedXRef()
+        {
+            var rec = GetSelectedPerson();
+            if (rec != null)
+                AppHost.Instance.SetClipboardText(rec.XRef);
+        }
+
         public override void SetLocale()
         {
             fView.Title = LangMan.LS(LSID.LSID_ToolOp_6);
@@ -113,6 +123,14 @@ namespace GKCore.Controllers
             GetControl<IMenuItem>("miDetails").Text = LangMan.LS(LSID.LSID_Details);
             GetControl<IMenuItem>("miGoToRecord").Text = LangMan.LS(LSID.LSID_GoToPersonRecord);
             GetControl<IMenuItem>("miCopyXRef").Text = LangMan.LS(LSID.LSID_CopyXRef);
+        }
+
+        public void OpeningContextMenu()
+        {
+            var iRec = GetSelectedPerson();
+            GetControl<IMenuItem>("miDetails").Enabled = (iRec != null);
+            GetControl<IMenuItem>("miGoToRecord").Enabled = (iRec != null);
+            GetControl<IMenuItem>("miCopyXRef").Enabled = (iRec != null);
         }
     }
 }
