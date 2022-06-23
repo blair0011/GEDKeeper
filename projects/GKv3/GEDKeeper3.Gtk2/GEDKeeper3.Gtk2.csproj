@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>netcoreapp3.1;net462</TargetFrameworks>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <OutputType>exe</OutputType>
+        <OutputType>Library</OutputType>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     </PropertyGroup>
 
